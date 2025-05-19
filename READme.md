@@ -86,7 +86,4 @@ GET /confirm/{token}
 ```
 GET /unsubscribe/{token}
 ```
-
-## Ліцензія
-
 MIT License © 2025 [Nazar Parnosov](https://github.com/nazarparnosov)

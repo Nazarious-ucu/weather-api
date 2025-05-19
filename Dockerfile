@@ -1,38 +1,28 @@
-FROM golang:1.23 AS builder
-
-LABEL author="Nazar Parnosov"
+FROM golang:1.24.3 AS builder
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-RUN apt-get update && apt-get install -y gcc libc6-dev libsqlite3-dev
-
-RUN go install github.com/swaggo/swag/cmd/swag@latest
-
 COPY . .
 
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 RUN /go/bin/swag init -g cmd/WeatherSubscriptionAPI/main.go
 
+RUN CGO_ENABLED=0 go build -o weather-app ./cmd/WeatherSubscriptionAPI
 
-RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o weather-app ./cmd/WeatherSubscriptionAPI
 
-FROM debian:bullseye-slim
-
-RUN apt-get update && apt-get install -y \
-  ca-certificates \
-  libsqlite3-0 \
-  && rm -rf /var/lib/apt/lists/*
+FROM alpine:3.20
 
 WORKDIR /app
+
+RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /app/weather-app .
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/web ./web
 COPY --from=builder /app/docs ./docs
-
-COPY .env .env
 
 EXPOSE 8080
 

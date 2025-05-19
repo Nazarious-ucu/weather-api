@@ -22,8 +22,8 @@ func NewWeatherHandler(svc *service.WeatherService) *WeatherHandler {
 // @Produce json
 // @Param city query string true "City name"
 // @Success 200 {object} service.WeatherData
-// @Failure 400 {object} model.ErrorResponse
-// @Failure 500 {object} model.ErrorResponse
+// @Failure 400
+// @Failure 500
 // @Router /weather [get]
 func (h *WeatherHandler) GetWeather(c *gin.Context) {
 	city := c.Query("city")
